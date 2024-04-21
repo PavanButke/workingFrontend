@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Message from "../components/LoadingError/Error";
 import Loading from "../components/LoadingError/Loading";
 import { register } from "../Redux/Actions/userActions";
 import Header from "./../components/Header";
 
-const Register = ({ location, history }) => {
+const Register = () => {
   window.scrollTo(0, 0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const redirect = location.search ? location.search.split("=")[1] : "/";
 
   const userRegister = useSelector((state) => state.userRegister);
@@ -20,9 +22,9 @@ const Register = ({ location, history }) => {
 
   useEffect(() => {
     if (userInfo) {
-      history.push(redirect);
+      navigate(redirect);
     }
-  }, [userInfo, history, redirect]);
+  }, [userInfo, navigate, redirect]);
 
   const submitHandler = (e) => {
     e.preventDefault();

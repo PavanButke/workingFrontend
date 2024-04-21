@@ -8,18 +8,17 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { listProductDetails } from "../Redux/Actions/ProductActions";
 import Loading from "../components/LoadingError/Loading";
+import { useParams, useNavigate } from "react-router-dom";
 
-
-
-
-const SingleProduct = ({ history,match }) => {
-  const [qty,setQty] = useState(1);
-  const productId = match.params.id;
+const SingleProduct = () => {
+  const [qty, setQty] = useState(1);
+  const { id } = useParams();
+  const productId = id;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const productDetails = useSelector((state) => state.productDetails);
   const { loading, error, product } = productDetails;
-
 
   useEffect(() => {
     dispatch(listProductDetails(productId));
@@ -27,9 +26,8 @@ const SingleProduct = ({ history,match }) => {
 
   const AddToCartHandle = (e) => {
     e.preventDefault();
-    history.push(`/cart/${productId}?qty=${qty}`);
+    navigate(`/cart/${productId}?qty=${qty}`);
   };
-
   return (
     <>
       <Header />

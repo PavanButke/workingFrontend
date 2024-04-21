@@ -17,6 +17,7 @@ import { ORDER_DETAILS_REQUEST, ORDER_DETAILS_FAIL, ORDER_PAY_SUCCESS, ORDER_LIS
 
   // CREATE ORDER
   export const createOrder = (order) => async (dispatch, getState) => {
+    console.log("Create Order Action Called", order);
     try {
       dispatch({ type: ORDER_CREATE_REQUEST });
   
@@ -31,7 +32,12 @@ import { ORDER_DETAILS_REQUEST, ORDER_DETAILS_FAIL, ORDER_PAY_SUCCESS, ORDER_LIS
         },
       };
   
-      const { data } = await axios.post(`https://murtikar.vercel.app/api/orders`, order, config);
+      const updatedOrder = {
+        ...order,
+        user: userInfo._id, // include the user id in the order object
+      };
+  
+      const { data } = await axios.post(`http://localhost:5000/api/orders`, updatedOrder, config);
       dispatch({ type: ORDER_CREATE_SUCCESS, payload: data });
       dispatch({ type: CART_CLEAR_ITEMS, payload: data });
   
@@ -51,6 +57,7 @@ import { ORDER_DETAILS_REQUEST, ORDER_DETAILS_FAIL, ORDER_PAY_SUCCESS, ORDER_LIS
     }
   };
   
+  
 
 // ORDER DETAILS
 export const getOrderDetails = (id) => async (dispatch, getState) => {
@@ -67,7 +74,8 @@ export const getOrderDetails = (id) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get(`https://murtikar.vercel.app/api/orders/${id}`, config);
+    const { data } = await axios.get(`http://localhost:5000/api/orders/${id}`, config);
+    console.log("Object data we are getting",data);
     dispatch({ type: ORDER_DETAILS_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -85,42 +93,49 @@ export const getOrderDetails = (id) => async (dispatch, getState) => {
 };
 
 // ORDER PAY
-export const payOrder =
-  (orderId, paymentResult) => async (dispatch, getState) => {
-    try {
-      dispatch({ type: ORDER_PAY_REQUEST });
+export const payOrder = (orderId, paymentResult) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: ORDER_PAY_REQUEST });
 
-      const {
-        userLogin: { userInfo },
-      } = getState();
+    const {
+      userLogin: { userInfo },
+    } = getState();
 
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
+    
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
 
-      const { data } = await axios.put(
-        `https://murtikar.vercel.app/api/orders/${orderId}/pay`,
-        paymentResult,
-        config
-      );
-      dispatch({ type: ORDER_PAY_SUCCESS, payload: data });
-    } catch (error) {
-      const message =
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message;
-      if (message === "Not authorized, token failed") {
-        dispatch(logout());
-      }
-      dispatch({
-        type: ORDER_PAY_FAIL,
-        payload: message,
-      });
+    const updatedPaymentResult = {
+      ...paymentResult,
+      userId: userInfo._id,
+    };
+
+    console.log(userInfo)
+    const { data } = await axios.put(
+      `http://localhost:5000/api/orders/${orderId}/pay`,
+      updatedPaymentResult,
+      config
+    );
+    dispatch({ type: ORDER_PAY_SUCCESS, payload: data });
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === "Not authorized, token failed") {
+      dispatch(logout());
     }
-  };
+    dispatch({
+      type: ORDER_PAY_FAIL,
+      payload: message,
+    });
+  }
+};
+
 
   
   // USER ORDERS
@@ -138,7 +153,7 @@ export const payOrder =
         },
       };
   
-      const { data } = await axios.get(`https://murtikar.vercel.app/api/orders/`, config);
+      const { data } = await axios.get(`http://localhost:5000/api/orders/`, config);
        dispatch({ type: ORDER_LIST_MY_SUCCESS, payload: data });
     } catch (error) {
       const message =

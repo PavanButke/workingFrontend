@@ -5,8 +5,9 @@ import { createOrder } from "../Redux/Actions/OrderActions.js";
 import { ORDER_CREATE_RESET } from "../Redux/Constants/OrderConstants.js";
 import Header from "./../components/Header.js";
 import Message from "./../components/LoadingError/Error.js";
+import { useNavigate } from "react-router-dom";
 
-const PlaceOrderScreen = ({ history }) => {
+const PlaceOrderScreen = () => {
   window.scrollTo(0, 0);
 
   const dispatch = useDispatch();
@@ -26,18 +27,20 @@ const PlaceOrderScreen = ({ history }) => {
 
   cart.totalPrice = (
     Number(cart.itemsPrice) +
-    Number(cart.shippingPrice) 
+    Number(cart.shippingPrice)
   ).toFixed(2);
 
   const orderCreate = useSelector((state) => state.orderCreate);
   const { order, success, error } = orderCreate;
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (success) {
-      history.push(`/order/${order._id}`);
+      navigate(`/order/${order._id}`);
       dispatch({ type: ORDER_CREATE_RESET });
     }
-  }, [history, dispatch, success, order]);
+  }, [dispatch, navigate, success, order]);
 
   const placeOrderHandler = () => {
     dispatch(

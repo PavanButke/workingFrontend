@@ -1,22 +1,16 @@
 import React from "react";
-import { Redirect, Route } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
-function PrivateRouter({ component: Component, ...rest }) {
-  return (
-    <Route
-      {...rest}
-      component={(props) => {
+function PrivateRouter({ children, ...rest }) {
+  const token = window.localStorage.getItem("userInfo");
+  const location = useLocation();
 
-        const token = window.localStorage.getItem("userInfo");
-   
-        if (token) {
-          return <Component {...props} />;
-        } else {
-          return <Redirect to={"/login"} />;
-        }
-      }}
-    />
+  return token ? (
+    children
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
   );
 }
 
 export default PrivateRouter;
+  
